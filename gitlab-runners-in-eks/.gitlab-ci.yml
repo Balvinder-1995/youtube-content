@@ -1,0 +1,26 @@
+stages:
+  - test
+default:
+  image: alpine
+  
+job-1:
+  stage: test
+  script:
+    - echo "This is job 1"
+    - sleep 600s
+  tags:
+    - k8s
+  
+job-2:
+  stage: test
+  script:
+    - echo "This is job 2"
+    - sleep 600s
+    # 16 core cpu, 32GB Memory
+  tags:
+   - k8s
+  variables:
+    KUBERNETES_CPU_REQUEST: 15
+    KUBERNETES_MEMORY_REQUEST: 30
+    KUBERNETES_CPU_LIMIT: 15
+    KUBERNETES_MEMORY_REQUEST: 30
