@@ -1,0 +1,9 @@
+{
+    "secrets-store-csi-driver": {
+      "enableSecretRotation": true,
+      "rotationPollInterval": "1m",
+      "syncSecret": {
+        "enabled": true
+      }
+    }
+  }

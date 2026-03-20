@@ -1,0 +1,11 @@
+apiVersion: node.eks.aws/v1alpha1
+kind: NodeConfig
+spec:
+  cluster:
+    name: balvinder-hybrid-cluster
+    region: ap-south-1
+  hybrid:
+    enableCredentialsFile: true
+    ssm:
+      activationId: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+      activationCode: XXXXXXXXXXXXXåååå
