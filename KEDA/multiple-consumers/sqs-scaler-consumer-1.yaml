@@ -1,0 +1,29 @@
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: consumer-1
+  namespace: consumer-1
+spec:
+  podIdentity:
+    provider: aws
+    roleArn: arn:aws:iam::{{AWS_ACCOUNT_ID}}:role/consumer-1
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: consumer-1-scaledobject
+  namespace: consumer-1
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx-deployment
+  triggers:
+  - type: aws-sqs-queue
+    authenticationRef:
+      name: consumer-1
+    metadata:
+      queueURL: https://sqs.{{AWS_REGION}}.amazonaws.com/{{AWS_ACCOUNT_ID}}/{{QUEUE_NAME}}
+      queueLength: "5"
+      awsRegion: "{{AWS_REGION}}"
+      scaleOnInFlight: "false"
