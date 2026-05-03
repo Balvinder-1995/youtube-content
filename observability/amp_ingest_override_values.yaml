@@ -1,0 +1,15 @@
+server:
+  persistentVolume:
+    enabled: false
+  remoteWrite:
+    -
+      url: "https://aps-workspaces.ap-south-1.amazonaws.com/workspaces/ws-15784afd-ba87-4c95-8b6c-660874fbebcd/api/v1/remote_write"
+      queue_config:
+        max_samples_per_send: 1000
+        max_shards: 200
+        capacity: 2500
+      sigv4:
+        region: ap-south-1
+        role_arn: "arn:aws:iam::968894489723:role/IAMRoleWithRemoteWritePermission"
+  statefulSet:
+    enabled: true
