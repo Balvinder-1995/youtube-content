@@ -1,0 +1,31 @@
+deploymentMode: SimpleScalable # singlebinary, distributed
+loki:
+  auth_enabled: false
+  storage:
+    type: s3
+    bucketNames:
+      chunks: "balvinder-account-1-loki"
+      ruler: "balvinder-account-1-loki"
+  # schemaConfig is what makes loki future proof. It allows you to seamlessly upgrade your infrastructure, change databases, 
+  # and adopt new Loki features without ever breaking your ability to query historical data
+  schemaConfig:
+    configs:
+      - from: 2026-04-01 # Apply all the rules below strictly to logs ingested on or after April 1st, 2024
+        object_store: s3 # where to put the actual compressed log files (called "chunks") and the index files
+        store: tsdb # indexing engine. better than boltdb-shipper or dynamodb
+        schema: v13 # This is the internal version of how loki structures the data inside the filess
+        index: # this controls how the index files are generated.
+          prefix: _index
+          period: 24h # create index files every 24h
+write:
+  persistence:
+    size: 20Gi
+    storageClass: gp3
+
+read:
+  replicas: 2
+
+backend:
+  persistence:
+    size: 20Gi
+    storageClass: gp3
