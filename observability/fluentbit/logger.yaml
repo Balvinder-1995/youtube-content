@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummy-logger-app
+  namespace: app
+  labels:
+    app: dummy-logger-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dummy-logger-app
+  template:
+    metadata:
+      labels:
+        app: dummy-logger-app
+    spec:
+      containers:
+      - name: dummy-logger-app
+        image: busybox:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          while true; do
+            # Generate a random number between 0 and 2
+            RAND=$((RANDOM % 3))
+            
+            # Get current timestamp in ISO 8601 format
+            TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            if [ "$RAND" -eq 0 ]; then
+              echo "{\"timestamp\": \"$TIME\", \"level\": \"INFO\", \"message\": \"User successfully authenticated.\", \"module\": \"auth\"}"
+            elif [ "$RAND" -eq 1 ]; then
+              echo "{\"timestamp\": \"$TIME\", \"level\": \"WARN\", \"message\": \"Memory usage nearing 80% threshold.\", \"module\": \"system\"}"
+            else
+              # Print errors to stderr for realistic behavior
+              echo "{\"timestamp\": \"$TIME\", \"level\": \"ERROR\", \"message\": \"Database connection timeout.\", \"module\": \"database\"}"
+            fi
+            
+            # Wait 2 seconds before printing the next log
+            sleep 2
+          done
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummy-logger-app2
+  namespace: app2
+  labels:
+    app: dummy-logger-app2
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dummy-logger-app2
+  template:
+    metadata:
+      labels:
+        app: dummy-logger-app2
+    spec:
+      containers:
+      - name: dummy-logger-app2
+        image: busybox:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          while true; do
+            # Generate a random number between 0 and 2
+            RAND=$((RANDOM % 3))
+            
+            # Get current timestamp in ISO 8601 format
+            TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            if [ "$RAND" -eq 0 ]; then
+              echo "{\"timestamp\": \"$TIME\", \"level\": \"INFO\", \"message\": \"User successfully authenticated.\", \"module\": \"auth\"}"
+            elif [ "$RAND" -eq 1 ]; then
+              echo "{\"timestamp\": \"$TIME\", \"level\": \"WARN\", \"message\": \"Memory usage nearing 80% threshold.\", \"module\": \"system\"}"
+            else
+              # Print errors to stderr for realistic behavior
+              echo "{\"timestamp\": \"$TIME\", \"level\": \"ERROR\", \"message\": \"Database connection timeout.\", \"module\": \"database\"}"
+            fi
+            
+            # Wait 2 seconds before printing the next log
+            sleep 2
+          done

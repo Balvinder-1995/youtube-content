@@ -1,0 +1,60 @@
+# helm repo add fluent https://fluent.github.io/helm-charts
+# helm upgrade --install fluent-bit fluent/fluent-bit -n fluentbit --create-namespace -f ./values.yaml
+
+loki:
+  host: 192.168.1.71
+  port: 3100
+
+clusterName: docker-desktop
+
+serviceMonitor:
+  enabled: false
+
+additionalEndpoints: []
+
+prometheusRule:
+  enabled: false
+
+
+config:
+  service: ""
+  inputs: ""
+  filters: ""
+  outputs: ""
+  extraFiles:
+    fluent-bit.yaml: |
+      service:
+        http_server: "on"
+        health_check: "on"
+        log_level: "info"
+      pipeline:
+        inputs:
+          - name: tail
+            path: /var/log/containers/*.log
+            multiline.parser: docker, cri
+            tag: kube.*
+            mem_buf_limit: 5MB
+        filters:
+          - name: kubernetes
+            match: kube.*
+            kube_tag_prefix: kube.var.log.containers.
+            buffer_size: 0
+            merge_log: on
+            keep_log: off
+            k8s-logging.parser: on
+          - name: modify
+            match: kube.*
+            remove:
+              - stream
+              - _p
+        outputs:
+          - name: loki
+            match: kube.*
+            host: {{ .Values.loki.host }}
+            port: {{ .Values.loki.port }}
+            labels: "cluster_name={{.Values.clusterName}}, namespace=$kubernetes['namespace_name'], pod=$kubernetes['pod_name'], container=$kubernetes['container_name'], level=$level"
+command:
+  - /fluent-bit/bin/fluent-bit
+args:
+  - --workdir=/fluent-bit/etc
+  - --config=/fluent-bit/etc/conf/fluent-bit.yaml
