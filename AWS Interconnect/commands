@@ -1,0 +1,14 @@
+
+# To create a transport in GCP
+gcloud network-connectivity transports create aws-gcp-interconnect \
+    --region=<GCP_REGION> \
+    --activation-key=<ACTIVATION_KEY> \
+    --network=<VPC_NAME> \
+    --advertised-routes=<ADVERTISED_ROUTES> # usually the subnet CIDR from GCP.
+
+# create vpc peering b/w transport and GCP VPC
+gcloud compute networks peerings create aws-gcp-interconnect-peering \
+      --network=<VPC_NAME> \
+      --peer-network=<PEER_NETWORK_NAME> \ # This comes from the output of above command.
+      --import-custom-routes \
+      --export-custom-routes
